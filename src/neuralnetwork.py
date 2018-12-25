@@ -17,10 +17,14 @@ class NeuralNetwork:
     def feedforward(self, vector):
         output = np.dot(self.layers[0].transpose(), vector)
         for i in range(1, self.n_layers - 1):
-            output = self.sigmoid(np.dot(self.layers[i].transpose(), output))
-        return self.softmax(output)           
+            output = self.relu(np.dot(self.layers[i].transpose(), output))
+        return output
     
-
+    def relu(self, x):
+        y = np.copy(x)
+        y[y<0]=0
+        return y
+        
     def sigmoid(self, x):
         return 1.0/(1+ np.exp(-x))
 
@@ -34,9 +38,9 @@ class NeuralNetwork:
         return e_x / e_x.sum()
 
 
-    def fitness(self, x, y, graphics_enabled, ticks, bonus_ticks, delay=0):
+    def fitness(self, x, y, graphics_enabled, ticks, bonus_ticks, delay=0, score_mult = 2):
         game = snake.Game(y,x, True)
-        self.fit = game.mainloop(graphics_enabled, ticks, bonus_ticks, self, delay)
+        self.fit = game.mainloop(graphics_enabled, ticks, bonus_ticks, self, delay, score_mult)
         return self.fit
 
 
@@ -75,4 +79,3 @@ class NeuralNetwork:
         offspring.layers = final_layers
         
         return offspring
-

@@ -114,14 +114,17 @@ class Game:
         self.board = Board(self.screen_x, self.screen_y)
         
         self.normalize = normalize
-        
+        self.fitness_score = 0
         self.snake = Snake(int(screen_x/2), int(screen_y/2))
         self.food = Food(1,1)
         self.place_food()
         
         self.next_move = "RIGHT"
+        self.last_move = "RIGHT"
         self.move_selected = True
         self.score = 0
+        
+        self.ticks = 0
         
     def place_food(self):
         self.food.update(np.random.randint(1, self.screen_x- 1), np.random.randint(1, self.screen_y - 1))
@@ -174,85 +177,130 @@ class Game:
         if graphics_enabled:
             print(self.board.board)
             print("\n")
+            print(self.ticks)
+            print(self.fitness_score)
+            print(self.snake_rays())
         
         return True
 
     def snake_up(self):
         if not self.move_selected and self.next_move != "DOWN":
+            self.last_move = self.next_move
             self.next_move = "UP"
 
     def snake_down(self):
         if not self.move_selected and self.next_move != "UP":
+            self.last_move = self.next_move
             self.next_move = "DOWN"
 
     def snake_left(self):
         if not self.move_selected and self.next_move != "RIGHT":
+            self.last_move = self.next_move
             self.next_move = "LEFT"
 
     def snake_right(self):
         if not self.move_selected and self.next_move != "LEFT":
+            self.last_move = self.next_move
             self.next_move = "RIGHT"
 
-    def snake_rays(self, normalize):
+    def snake_turn_left(self):
+        if self.last_move == "LEFT":
+            self.snake_down()
+        elif self.last_move == "RIGHT":
+            self.snake_up()
+        elif self.last_move == "UP":
+            self.snake_left()
+        elif self.last_move == "DOWN":
+            self.snake_right()
+            
+    def snake_turn_right(self):
+        if self.last_move == "LEFT":
+            self.snake_up()
+        elif self.last_move == "RIGHT":
+            self.snake_down()
+        elif self.last_move == "UP":
+            self.snake_right()
+        elif self.last_move == "DOWN":
+            self.snake_left()
+   
+    def snake_no_turn(self):
+        if self.last_move == "LEFT":
+            self.snake_left()
+        elif self.last_move == "RIGHT":
+            self.snake_right()
+        elif self.last_move == "UP":
+            self.snake_up()
+        elif self.last_move == "DOWN":
+            self.snake_down()
+        
+    
+    def snake_rays(self, normalize=False):
         c = 1
-        while True:
+        up_v = 0
+        down_v = 0
+        left_v = 0
+        right_v = 0
+        while c < 2:
             y, x = self.snake.head
-            if self.board.board[y - c, x] != 0:
-                if normalize:
-                    up = c/self.screen_y
-                else:
-                    up = c
-                    
-                if self.board.board[y - c, x] == 2:
+            if self.board.board[y - c, x] == 0 or self.board.board[y - c, x] == self.food.val:
+                up = 1
+            else:
+                up = 0
+            while self.board.board[y - c, x] != 1:
+                if self.board.board[y - c, x] == self.food.val:
                     up_v = 1
-                else: 
+                    break
+                else:
                     up_v = 0
-                break
+                c = c + 1
             c = c + 1
             
         c = 1
-        while True:
+        while c < 2:
             y, x = self.snake.head
-            if self.board.board[y + c, x] != 0:
-                if normalize:
-                    down = c/self.screen_y
-                else:
-                    down = c
-                if self.board.board[y + c, x] == 2:
+            if self.board.board[y + c, x] == 0 or self.board.board[y + c, x] == self.food.val:
+                down = 1
+            else:
+                down = 0
+            while self.board.board[y + c, x] != 1:
+                if self.board.board[y + c, x] == self.food.val:
                     down_v = 1
+                    break
                 else:
                     down_v = 0
-                break
+                c = c + 1
             c = c + 1
             
         c = 1
-        while True:
+        while  c < 2:
             y, x = self.snake.head
-            if self.board.board[y, x - c] != 0:
-                if normalize:
-                    left = c/self.screen_x
-                else:
-                    left = c
-                if self.board.board[y, x - c] == 2:
+            if self.board.board[y, x - c] == 0 or self.board.board[y, x - c] == self.food.val:
+                left = 1
+            else:
+                left = 0
+            while self.board.board[y, x - c] != 1:
+                if self.board.board[y, x - c] == self.food.val:
                     left_v = 1
+                    break
                 else:
                     left_v = 0
-                break
+                c = c + 1
             c = c + 1
             
         c = 1
-        while True:
+        while  c < 2:
             y, x = self.snake.head
-            if self.board.board[y, x + c] != 0:
-                if normalize:
-                    right = c/self.screen_x
-                else:
-                    right = c
-                if self.board.board[y, x + c] == 2:
+            if self.board.board[y, x + c] == 0 or self.board.board[y, x + c] == self.food.val:
+                right = 1
+            else:
+                right = 0
+            while self.board.board[y, x + c] != 1:
+                if self.board.board[y, x + c] == self.food.val:
                     right_v = 1
+                    break
                 else:
                     right_v = 0
-                break
+                c = c + 1
             c = c + 1
         
         if normalize:
@@ -266,34 +314,47 @@ class Game:
             sy, sx = self.snake.head
             fy, fx = self.food.pos
             
-        if self.next_move == "UP":
-            return [up, left, right, up_v, left_v, right_v, sy, sx, fy, fx]
-        if self.next_move == "DOWN":
-            return [down, right, left, down_v, right_v, left_v, sy, sx, fy, fx]
-        if self.next_move == "RIGHT":
-            return [right, up, down, right_v, up_v, down_v, sy, sx, fy, fx]
-        if self.next_move == "LEFT":
-            return [left, down, up, left_v, down_v, up_v, sy, sx, fy, fx]
+        dist = np.linalg.norm((fy - sy, fx - sx))
         
-    def mainloop(self,graphics_enabled, ticks, bonus_ticks, neural_network, delay):
+        if self.next_move == "UP":
+            return [up, left, right, up_v, left_v, right_v, dist]
+        if self.next_move == "DOWN":
+            return [down, right, left, down_v, right_v, left_v, dist]
+        if self.next_move == "RIGHT":
+            return [right, up, down, right_v, up_v, down_v, dist]
+        if self.next_move == "LEFT":
+            return [left, down, up, left_v, down_v, up_v, dist]
+    
+    def mainloop(self,graphics_enabled, ticks, bonus_ticks, neural_network, delay, score_mult):
+        last_dist = 100000
         while ticks:
+            self.ticks = ticks
             last_score = self.score
             inp = self.snake_rays(self.normalize)
             out = neural_network.feedforward(inp)
+            
+
+            if last_dist > inp[-1]:
+                self.fitness_score += 1 
+            else:
+                self.fitness_score -= 4
+                
+            last_dist = inp[-1]
             x = np.argmax(out)
-            if x == 1:
-                self.snake_up()
+            if graphics_enabled:
+                print(out)
+            if x == 0:
+                self.snake_no_turn()
+            elif x == 1:
+                self.snake_turn_left()
             elif x == 2:
-                self.snake_left()
-            elif x == 3:
-                self.snake_right()
-            elif x == 4:
-                self.snake_down()
+                self.snake_turn_right()
+                
             if not self.next_frame(graphics_enabled):
+                self.fitness_score -= 40
                 break
             if last_score != self.score:
                 ticks = ticks + bonus_ticks
             ticks = ticks - 1
             time.sleep(delay)
-        return self.score
-    
+        return self.fitness_score + (self.score**2)*score_mult

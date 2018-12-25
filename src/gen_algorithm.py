@@ -9,22 +9,22 @@ import neuralnetwork
 
 if __name__ == "__main__":
 
-    population = 150
-    mutation_rate = 0.30
-    total_generations = 750
+    population = 50
+    mutation_rate = 0.10
+    total_generations = 200
     filename = "grafico.png"
     
     x = 16
-    y = 16
+    y = 10
     graphics_enabled = False
     ticks = 50
-    bonus_ticks = 8 
-    delay=0
-    
+    bonus_ticks = 10 
+    delay = 0
+    score_mult = 5
     
     pop = []
     for i in range(population):
-        pop.append(neuralnetwork.NeuralNetwork([10,5,4]))
+        pop.append(neuralnetwork.NeuralNetwork([7,5,3]))
     
     generations = 0
     best = []
@@ -36,12 +36,12 @@ if __name__ == "__main__":
         fitness_array = []
         
         for i in pop:
-            fitness_array.append(i.fitness(x, y, graphics_enabled, ticks, bonus_ticks, delay))
+            fitness_array.append(i.fitness(x, y, graphics_enabled, ticks, bonus_ticks, delay, score_mult))
             
         fitness_array.sort()
         best.append(fitness_array[-1])
         avg.append(sum(fitness_array)/population)
-        threshold = fitness_array[int(population*.99)]
+        threshold = fitness_array[int(population*.90)]
         mating_pool = []
         
         for i in pop:
@@ -69,7 +69,7 @@ if __name__ == "__main__":
   #            ", y población por generación de: " + str(population))
     
     plt.legend()
-    plt.ylim(ymin=0)
+    plt.ylim(ymin=min(avg))
     plt.xlim(xmin=0)
     
     #plt.show()
@@ -78,4 +78,4 @@ if __name__ == "__main__":
     print("Generaciones totales: " + str(generations))
     print("Tiempo total: " + str(end-start))
     
-    best_nn[-1].fitness(x, y, True, ticks, bonus_ticks, 3)
+    best_nn[-1].fitness(x, y, True, ticks, bonus_ticks, 0.5)
