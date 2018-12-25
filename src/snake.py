@@ -1,12 +1,14 @@
-from turtle import Turtle, Screen
-import random
-import time
 import numpy as np
-
-
+import time
 
 
 class Board:
+    '''
+    Tablero
+    Se genera un tablero, que se representa con una matriz de numpy
+    0 es una celda vacia, 1 un muro, food.val la comida y snake.val la serpiente
+        
+    '''
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -16,6 +18,7 @@ class Board:
         self.board[x-1,:] = 1
         self.board[:,y-1] = 1
     
+    #resetea el tablero
     def update(self):
         self.board = np.zeros((self.x,self.y))
         self.board[0,:] = 1
@@ -25,6 +28,11 @@ class Board:
         
         
 class Snake:
+    '''
+    Serpiente
+    Es la serpiente del juego
+    Se mueve, crece al comer la comida, y muere al chocar consigo misma/una pared
+    '''
     def __init__(self, x, y):
         self.body = [(x,y)]
         self.body.append((x, y - 1))
@@ -78,6 +86,10 @@ class Snake:
         return True
 
 class Food:
+    '''
+    Comida
+    Hace crecer a la serpiente
+    '''
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -91,10 +103,17 @@ class Food:
         
         
 class Game:
-    def __init__(self, screen_x, screen_y):
+    '''
+    Juego
+    Controla el estado del juego y entrega el vector de input para la
+    red neuronal
+    '''
+    def __init__(self, screen_x, screen_y, normalize):
         self.screen_x = screen_x
         self.screen_y = screen_y
         self.board = Board(self.screen_x, self.screen_y)
+        
+        self.normalize = normalize
         
         self.snake = Snake(int(screen_x/2), int(screen_y/2))
         self.food = Food(1,1)
@@ -150,8 +169,11 @@ class Game:
         
         if self.check_collision():
             return False
+        
+        #wow such graphics
         if graphics_enabled:
             print(self.board.board)
+            print("\n")
         
         return True
 
@@ -253,20 +275,25 @@ class Game:
         if self.next_move == "LEFT":
             return [left, down, up, left_v, down_v, up_v, sy, sx, fy, fx]
         
-    def mainloop(self,graphics_enabled, normalization):
-        while True:
-            x = input()
-            if x == "w":
-                game.snake_up()
-            elif x == "a":
-                game.snake_left()
-            elif x == "d":
-                game.snake_right()
-            elif x == "s":
-                game.snake_down()
-            if not game.next_frame(graphics_enabled):
+    def mainloop(self,graphics_enabled, ticks, bonus_ticks, neural_network, delay):
+        while ticks:
+            last_score = self.score
+            inp = self.snake_rays(self.normalize)
+            out = neural_network.feedforward(inp)
+            x = np.argmax(out)
+            if x == 1:
+                self.snake_up()
+            elif x == 2:
+                self.snake_left()
+            elif x == 3:
+                self.snake_right()
+            elif x == 4:
+                self.snake_down()
+            if not self.next_frame(graphics_enabled):
                 break
-        return game.score
+            if last_score != self.score:
+                ticks = ticks + bonus_ticks
+            ticks = ticks - 1
+            time.sleep(delay)
+        return self.score
     
-game = Game(8,8)
-game.mainloop(True,True)
