@@ -22,8 +22,12 @@ Contiene 3 archivos:
 
 Dependencias:
 -numpy
+
 -matplotlib
+
 -pygame
+
 Python 3.6
+
   
   
