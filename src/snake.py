@@ -120,8 +120,6 @@ class Game:
         self.place_food()
         
         self.next_move = "RIGHT"
-        self.last_move = "RIGHT"
-        self.move_selected = True
         self.score = 0
         
         self.ticks = 0
@@ -177,61 +175,68 @@ class Game:
         if graphics_enabled:
             print(self.board.board)
             print("\n")
-            print(self.ticks)
+            print(self.score)
             print(self.fitness_score)
-            print(self.snake_rays())
         
         return True
 
     def snake_up(self):
-        if not self.move_selected and self.next_move != "DOWN":
-            self.last_move = self.next_move
+        if self.next_move != "DOWN":
             self.next_move = "UP"
 
     def snake_down(self):
-        if not self.move_selected and self.next_move != "UP":
-            self.last_move = self.next_move
+        if self.next_move != "UP":
             self.next_move = "DOWN"
 
     def snake_left(self):
-        if not self.move_selected and self.next_move != "RIGHT":
-            self.last_move = self.next_move
+        if self.next_move != "RIGHT":
             self.next_move = "LEFT"
 
     def snake_right(self):
-        if not self.move_selected and self.next_move != "LEFT":
-            self.last_move = self.next_move
+        if self.next_move != "LEFT":
             self.next_move = "RIGHT"
 
     def snake_turn_left(self):
-        if self.last_move == "LEFT":
+        if self.next_move == "LEFT":
             self.snake_down()
-        elif self.last_move == "RIGHT":
+            return 0
+        elif self.next_move == "RIGHT":
             self.snake_up()
-        elif self.last_move == "UP":
+            return 0
+        elif self.next_move == "UP":
             self.snake_left()
-        elif self.last_move == "DOWN":
+            return 0
+        elif self.next_move == "DOWN":
             self.snake_right()
+            return 0
             
     def snake_turn_right(self):
-        if self.last_move == "LEFT":
+        if self.next_move == "LEFT":
             self.snake_up()
-        elif self.last_move == "RIGHT":
+            return 0
+        elif self.next_move == "RIGHT":
             self.snake_down()
-        elif self.last_move == "UP":
+            return 0
+        elif self.next_move == "UP":
             self.snake_right()
-        elif self.last_move == "DOWN":
+            return 0
+        elif self.next_move == "DOWN":
             self.snake_left()
+            return 0
    
     def snake_no_turn(self):
-        if self.last_move == "LEFT":
+        if self.next_move == "LEFT":
             self.snake_left()
-        elif self.last_move == "RIGHT":
+            return 0
+        elif self.next_move == "RIGHT":
             self.snake_right()
-        elif self.last_move == "UP":
+            return 0
+        elif self.next_move == "UP":
             self.snake_up()
-        elif self.last_move == "DOWN":
+            return 0
+        elif self.next_move == "DOWN":
             self.snake_down()
+            return 0
         
     
     def snake_rays(self, normalize=False):
@@ -335,14 +340,13 @@ class Game:
             
 
             if last_dist > inp[-1]:
-                self.fitness_score += 1 
+                self.fitness_score += 0.5 
             else:
-                self.fitness_score -= 4
+                self.fitness_score -= 1
                 
             last_dist = inp[-1]
             x = np.argmax(out)
-            if graphics_enabled:
-                print(out)
+            x = np.argmax(out)
             if x == 0:
                 self.snake_no_turn()
             elif x == 1:
@@ -351,10 +355,12 @@ class Game:
                 self.snake_turn_right()
                 
             if not self.next_frame(graphics_enabled):
-                self.fitness_score -= 40
+                self.fitness_score -= 5
                 break
             if last_score != self.score:
                 ticks = ticks + bonus_ticks
             ticks = ticks - 1
             time.sleep(delay)
-        return self.fitness_score + (self.score**2)*score_mult
+        if self.score == 0:
+            self.fitness_score -= 10
+        return self.fitness_score + (self.score)*score_mult

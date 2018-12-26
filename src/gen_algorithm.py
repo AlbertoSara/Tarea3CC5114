@@ -11,16 +11,16 @@ if __name__ == "__main__":
 
     population = 50
     mutation_rate = 0.10
-    total_generations = 200
+    total_generations = 50
     filename = "grafico.png"
     
     x = 16
     y = 10
     graphics_enabled = False
     ticks = 50
-    bonus_ticks = 10 
+    bonus_ticks = 20 
     delay = 0
-    score_mult = 5
+    score_mult = 10
     
     pop = []
     for i in range(population):
@@ -30,17 +30,23 @@ if __name__ == "__main__":
     best = []
     best_nn = []
     avg = []
+    avg_score = []
+    best_score = []
     
     start = time.time()
     while generations < total_generations:
         fitness_array = []
-        
+        score_array = []
         for i in pop:
             fitness_array.append(i.fitness(x, y, graphics_enabled, ticks, bonus_ticks, delay, score_mult))
+            score_array.append(i.game_score)
             
         fitness_array.sort()
+        score_array.sort()
         best.append(fitness_array[-1])
         avg.append(sum(fitness_array)/population)
+        avg_score.append(sum(score_array)/population)
+        best_score.append(score_array[-1])
         threshold = fitness_array[int(population*.90)]
         mating_pool = []
         
@@ -59,17 +65,17 @@ if __name__ == "__main__":
         generations += 1
         
     end = time.time()
-    plt.plot(np.arange(len(best)), best, label="Mejor de cada generación")
-    plt.plot(np.arange(len(avg)), avg, label="Promedio de cada generación")
+    plt.plot(np.arange(len(best_score)), best_score, label="Mejor de cada generación")
+    plt.plot(np.arange(len(avg_score)), avg_score, label="Promedio de cada generación")
     plt.xlabel("Generación")
-    plt.ylabel("Puntaje (fitness)")
+    plt.ylabel("Puntaje")
   #  plt.title("Evolución de la población de soluciones para \n" \
   #            "el problema de N-Queens con n = " + str(board_size) + 
   #            ",\n probablidad de mutación: " + str(mutation_rate) +
   #            ", y población por generación de: " + str(population))
     
     plt.legend()
-    plt.ylim(ymin=min(avg))
+    plt.ylim(ymin=min(avg_score))
     plt.xlim(xmin=0)
     
     #plt.show()

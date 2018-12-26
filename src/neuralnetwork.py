@@ -10,8 +10,9 @@ class NeuralNetwork:
         self.layers = []
         self.n_layers = len(layer_array)
         self.fit = 0
+        self.game_score = 0
         for i in range(len(layer_array)-1):
-                self.layers.append(np.random.random((layer_array[i],layer_array[i+1])))
+                self.layers.append(2*np.random.random((layer_array[i],layer_array[i+1])) - 1)
                 
 
     def feedforward(self, vector):
@@ -41,6 +42,7 @@ class NeuralNetwork:
     def fitness(self, x, y, graphics_enabled, ticks, bonus_ticks, delay=0, score_mult = 2):
         game = snake.Game(y,x, True)
         self.fit = game.mainloop(graphics_enabled, ticks, bonus_ticks, self, delay, score_mult)
+        self.game_score = game.score
         return self.fit
 
 
@@ -69,7 +71,7 @@ class NeuralNetwork:
         for layer in offspring_genes:
             for i in range(len(layer)):
                 if mutation_chance > np.random.random():
-                    layer[i] = np.random.random()
+                    layer[i] = 2*np.random.random()-1
         
         #transformamos los arreglos de vuelta en matrices
         final_layers = []
