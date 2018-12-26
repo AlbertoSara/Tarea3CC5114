@@ -21,6 +21,7 @@ Contiene 3 archivos:
   
 
 Dependencias:
+
 -numpy
 
 -matplotlib
