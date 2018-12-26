@@ -7,11 +7,13 @@ import matplotlib.pyplot as plt
 import time
 import neuralnetwork
 
+plt.ioff()
+
 if __name__ == "__main__":
 
-    population = 50
+    population = 80
     mutation_rate = 0.10
-    total_generations = 50
+    total_generations = 60
     filename = "grafico.png"
     
     x = 16
@@ -80,8 +82,10 @@ if __name__ == "__main__":
     
     #plt.show()
     plt.savefig(filename)
+    plt.close()
     print("\n")
     print("Generaciones totales: " + str(generations))
     print("Tiempo total: " + str(end-start))
     
-    best_nn[-1].fitness(x, y, True, ticks, bonus_ticks, 0.5)
+    for i in range(len(best_nn)):
+        best_nn[i].fitness(x, y, True, ticks, bonus_ticks, 0.1, 1, i)

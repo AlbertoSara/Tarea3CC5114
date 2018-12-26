@@ -1,6 +1,9 @@
 import numpy as np
 import time
+import pygame
+import sys
 
+pygame.init()
 
 class Board:
     '''
@@ -123,6 +126,29 @@ class Game:
         self.score = 0
         
         self.ticks = 0
+        self.size = 20
+        self.screen = None
+        
+        self.gen = 0
+    def update_screen(self):
+        self.screen.fill((0,0,0))
+        for i in range(self.screen_x):
+            for j in range(self.screen_y):
+                if self.board.board[i,j] == 1:
+                    pygame.draw.rect(self.screen, (255,255,255), (j*self.size,i*self.size,self.size,self.size),0)
+                    pygame.draw.rect(self.screen, (155,155,155), (j*self.size,i*self.size,self.size,self.size),2)
+                elif self.board.board[i,j] == self.food.val:
+                    pygame.draw.rect(self.screen, (255,0,0), (j*self.size,i*self.size,self.size,self.size),0)
+                    pygame.draw.rect(self.screen, (155,0,0), (j*self.size,i*self.size,self.size,self.size),2)
+                elif self.board.board[i,j] == self.snake.val:
+                    pygame.draw.rect(self.screen, (0,255,0), (j*self.size,i*self.size,self.size,self.size),0)
+                    pygame.draw.rect(self.screen, (0,155,0), (j*self.size,i*self.size,self.size,self.size),2)
+        pygame.display.update()       
+        pygame.display.set_caption("Generation: " + str(self.gen) + "  Score: " + str(self.score))
+    
+    def init_screen(self):
+        self.screen = pygame.display.set_mode((320,200))
+        self.screen.fill((0,0,0))
         
     def place_food(self):
         self.food.update(np.random.randint(1, self.screen_x- 1), np.random.randint(1, self.screen_y - 1))
@@ -173,10 +199,7 @@ class Game:
         
         #wow such graphics
         if graphics_enabled:
-            print(self.board.board)
-            print("\n")
-            print(self.score)
-            print(self.fitness_score)
+            self.update_screen()
         
         return True
 
@@ -330,9 +353,18 @@ class Game:
         if self.next_move == "LEFT":
             return [left, down, up, left_v, down_v, up_v, dist]
     
-    def mainloop(self,graphics_enabled, ticks, bonus_ticks, neural_network, delay, score_mult):
+    def mainloop(self,graphics_enabled, ticks, bonus_ticks, neural_network, delay, score_mult, gen):
+        self.gen = gen
         last_dist = 100000
+        if graphics_enabled:
+            self.init_screen()
         while ticks:
+                
+            if graphics_enabled:
+               for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit(); sys.exit();
+                        
             self.ticks = ticks
             last_score = self.score
             inp = self.snake_rays(self.normalize)
@@ -361,6 +393,13 @@ class Game:
                 ticks = ticks + bonus_ticks
             ticks = ticks - 1
             time.sleep(delay)
+            
         if self.score == 0:
             self.fitness_score -= 10
+        
+        if graphics_enabled:
+            time.sleep(3)
+            pygame.display.quit()
+            pygame.quit();
+        
         return self.fitness_score + (self.score)*score_mult
