@@ -6,6 +6,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import neuralnetwork
+import pygame
+import sys
 
 plt.ioff()
 
@@ -13,16 +15,16 @@ if __name__ == "__main__":
 
     population = 80
     mutation_rate = 0.10
-    total_generations = 60
+    total_generations = 15
     filename = "grafico.png"
     
-    x = 16
-    y = 10
+    x = 32
+    y = 20
     graphics_enabled = False
-    ticks = 50
-    bonus_ticks = 20 
+    ticks = 80
+    bonus_ticks = 40 
     delay = 0
-    score_mult = 10
+    score_mult = 5
     
     pop = []
     for i in range(population):
@@ -35,12 +37,13 @@ if __name__ == "__main__":
     avg_score = []
     best_score = []
     
+    screen = pygame.display.set_mode((20*x,20*y))
     start = time.time()
     while generations < total_generations:
         fitness_array = []
         score_array = []
         for i in pop:
-            fitness_array.append(i.fitness(x, y, graphics_enabled, ticks, bonus_ticks, delay, score_mult))
+            fitness_array.append(i.fitness(x, y, graphics_enabled, ticks, bonus_ticks, delay, score_mult,0, screen))
             score_array.append(i.game_score)
             
         fitness_array.sort()
@@ -88,4 +91,13 @@ if __name__ == "__main__":
     print("Tiempo total: " + str(end-start))
     
     for i in range(len(best_nn)):
-        best_nn[i].fitness(x, y, True, ticks, bonus_ticks, 0.1, 1, i)
+        best_nn[i].fitness(x, y, True, ticks, bonus_ticks, 0.1, 1, i, screen)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.display.quit()
+                pygame.quit()
+                sys.exit()
+
+    pygame.display.quit()
+    pygame.quit()
+    sys.exit()

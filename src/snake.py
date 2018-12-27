@@ -146,8 +146,8 @@ class Game:
         pygame.display.update()       
         pygame.display.set_caption("Generation: " + str(self.gen) + "  Score: " + str(self.score))
     
-    def init_screen(self):
-        self.screen = pygame.display.set_mode((320,200))
+    def init_screen(self, screen):
+        self.screen = screen
         self.screen.fill((0,0,0))
         
     def place_food(self):
@@ -353,17 +353,17 @@ class Game:
         if self.next_move == "LEFT":
             return [left, down, up, left_v, down_v, up_v, dist]
     
-    def mainloop(self,graphics_enabled, ticks, bonus_ticks, neural_network, delay, score_mult, gen):
+    def mainloop(self,graphics_enabled, ticks, bonus_ticks, neural_network, delay, score_mult, gen, screen):
         self.gen = gen
         last_dist = 100000
         if graphics_enabled:
-            self.init_screen()
+            self.init_screen(screen)
         while ticks:
                 
-            if graphics_enabled:
-               for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        pygame.quit(); sys.exit();
+           # if graphics_enabled:
+           #    for event in pygame.event.get():
+           #         if event.type == pygame.QUIT:
+           #             pygame.quit(); sys.exit();
                         
             self.ticks = ticks
             last_score = self.score
@@ -387,7 +387,7 @@ class Game:
                 self.snake_turn_right()
                 
             if not self.next_frame(graphics_enabled):
-                self.fitness_score -= 5
+                self.fitness_score -= 15
                 break
             if last_score != self.score:
                 ticks = ticks + bonus_ticks
@@ -398,8 +398,8 @@ class Game:
             self.fitness_score -= 10
         
         if graphics_enabled:
-            time.sleep(3)
-            pygame.display.quit()
-            pygame.quit();
+            time.sleep(1)
+         #   pygame.display.quit()
+         #   pygame.quit();
         
-        return self.fitness_score + (self.score)*score_mult
+        return self.fitness_score + ((self.score)*score_mult)**2

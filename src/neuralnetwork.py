@@ -3,6 +3,7 @@
 
 import numpy as np
 import snake
+import pygame
 
 class NeuralNetwork:
     def __init__(self, layer_array):
@@ -39,9 +40,9 @@ class NeuralNetwork:
         return e_x / e_x.sum()
 
 
-    def fitness(self, x, y, graphics_enabled, ticks, bonus_ticks, delay=0, score_mult = 2, gen = 0):
+    def fitness(self, x, y, graphics_enabled, ticks, bonus_ticks, delay=0, score_mult = 2, gen = 0, screen = pygame.display.set_mode((320,200))):
         game = snake.Game(y,x, True)
-        self.fit = game.mainloop(graphics_enabled, ticks, bonus_ticks, self, delay, score_mult, gen)
+        self.fit = game.mainloop(graphics_enabled, ticks, bonus_ticks, self, delay, score_mult, gen, screen)
         self.game_score = game.score
         return self.fit
 
