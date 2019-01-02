@@ -3,7 +3,6 @@ import time
 import pygame
 import sys
 
-pygame.init()
 
 class Board:
     '''
@@ -359,11 +358,11 @@ class Game:
         if graphics_enabled:
             self.init_screen(screen)
         while ticks:
-                
-           # if graphics_enabled:
-           #    for event in pygame.event.get():
-           #         if event.type == pygame.QUIT:
-           #             pygame.quit(); sys.exit();
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.display.quit()
+                    pygame.quit()
+                    sys.exit()
                         
             self.ticks = ticks
             last_score = self.score
@@ -378,7 +377,6 @@ class Game:
                 
             last_dist = inp[-1]
             x = np.argmax(out)
-            x = np.argmax(out)
             if x == 0:
                 self.snake_no_turn()
             elif x == 1:
@@ -387,19 +385,15 @@ class Game:
                 self.snake_turn_right()
                 
             if not self.next_frame(graphics_enabled):
-                self.fitness_score -= 15
+                self.fitness_score -= 20
                 break
             if last_score != self.score:
                 ticks = ticks + bonus_ticks
             ticks = ticks - 1
-            time.sleep(delay)
-            
+            time.sleep(delay)    
         if self.score == 0:
             self.fitness_score -= 10
-        
         if graphics_enabled:
             time.sleep(1)
-         #   pygame.display.quit()
-         #   pygame.quit();
         
-        return self.fitness_score + ((self.score)*score_mult)**2
+        return self.fitness_score + ((self.score)*score_mult)**1.02

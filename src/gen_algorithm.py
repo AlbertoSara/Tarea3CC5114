@@ -11,25 +11,34 @@ import sys
 
 plt.ioff()
 
+
 if __name__ == "__main__":
 
     population = 80
     mutation_rate = 0.10
-    total_generations = 15
+    total_generations = 80
     filename = "grafico.png"
     
-    x = 32
-    y = 20
-    graphics_enabled = False
-    ticks = 80
-    bonus_ticks = 40 
-    delay = 0
+    show_last = 5
+    x = 16
+    y = 10
+    ticks = 120
+    bonus_ticks = 80
+    visual_delay = 0.1
     score_mult = 5
+    
+    net_arch = [7,5,3]  #el primer elemento es la cantidad de inputs, el ultimo de outputs,
+                        #y los intermedios son capas ocultas. [7,5,3] son 7 inputs, 3 outputs
+                        #y una sola capa oculta con 5 neuronas
     
     pop = []
     for i in range(population):
-        pop.append(neuralnetwork.NeuralNetwork([7,5,3]))
+        pop.append(neuralnetwork.NeuralNetwork(net_arch))
     
+    
+    
+    graphics_enabled = False
+    delay = 0
     generations = 0
     best = []
     best_nn = []
@@ -37,13 +46,12 @@ if __name__ == "__main__":
     avg_score = []
     best_score = []
     
-    screen = pygame.display.set_mode((20*x,20*y))
     start = time.time()
     while generations < total_generations:
         fitness_array = []
         score_array = []
         for i in pop:
-            fitness_array.append(i.fitness(x, y, graphics_enabled, ticks, bonus_ticks, delay, score_mult,0, screen))
+            fitness_array.append(i.fitness(x, y, graphics_enabled, ticks, bonus_ticks, delay, score_mult,0, None))
             score_array.append(i.game_score)
             
         fitness_array.sort()
@@ -74,24 +82,20 @@ if __name__ == "__main__":
     plt.plot(np.arange(len(avg_score)), avg_score, label="Promedio de cada generación")
     plt.xlabel("Generación")
     plt.ylabel("Puntaje")
-  #  plt.title("Evolución de la población de soluciones para \n" \
-  #            "el problema de N-Queens con n = " + str(board_size) + 
-  #            ",\n probablidad de mutación: " + str(mutation_rate) +
-  #            ", y población por generación de: " + str(population))
     
     plt.legend()
     plt.ylim(ymin=min(avg_score))
     plt.xlim(xmin=0)
     
-    #plt.show()
     plt.savefig(filename)
     plt.close()
     print("\n")
-    print("Generaciones totales: " + str(generations))
     print("Tiempo total: " + str(end-start))
     
-    for i in range(len(best_nn)):
-        best_nn[i].fitness(x, y, True, ticks, bonus_ticks, 0.1, 1, i, screen)
+    pygame.init()
+    screen = pygame.display.set_mode((20*x,20*y))
+    for i in range(total_generations - show_last,len(best_nn)):
+        best_nn[i].fitness(x, y, True, ticks, bonus_ticks, visual_delay, 1, i+1, screen)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.display.quit()
