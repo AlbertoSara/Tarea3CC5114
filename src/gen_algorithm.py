@@ -19,13 +19,13 @@ if __name__ == "__main__":
     total_generations = 80
     filename = "grafico.png"
     
-    show_last = 5
-    x = 16
+    show_last = 5       #Cuantas partidas mostrar. 5 = Mostrar la mejor red de las últimas 5 generaciones
+    x = 16              #tamaño del mapa
     y = 10
-    ticks = 120
-    bonus_ticks = 80
-    visual_delay = 0.1
-    score_mult = 5
+    ticks = 120         #cuantos ticks jugará la ia
+    bonus_ticks = 80    #cuantos ticks gana al comer
+    visual_delay = 0.1  #tiempo en segundos entre cada tic de juego
+    score_mult = 5      #Cuantos puntos vale cada comida
     
     net_arch = [7,5,3]  #el primer elemento es la cantidad de inputs, el ultimo de outputs,
                         #y los intermedios son capas ocultas. [7,5,3] son 7 inputs, 3 outputs
